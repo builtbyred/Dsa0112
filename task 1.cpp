@@ -2,68 +2,47 @@
 #include <string>
 using namespace std;
 
-class SmartCard {
+class Book {
 private:
-    int balance;
+    string title;
+    int copies;
+    string author;
 
 public:
-    SmartCard(int b) {
-        balance = b;
+    Book() : Book("Unknown", 0, "Unknown") {}
+
+    Book(string t) : Book(t, 1, "Unknown") {}
+
+    Book(string t, int c) : Book(t, c, "Unknown") {}
+
+    Book(string t, int c, string a)
+        : title(t), copies(c), author(a) {
+        if (copies < 0)
+            throw invalid_argument("Copies cannot be negative");
     }
 
-    bool canTravel(int fare) {
-        return balance - fare >= 5000;
-    }
-
-    void deduct(int fare) {
-        if (canTravel(fare)) {
-            balance -= fare;
-            cout << "Journey Approved\n";
-        } else {
-            cout << "Journey Denied\n";
-        }
-    }
-
-    int getBalance() {
-        return balance;
-    }
-};
-
-class Passenger {
-public:
-    string name;
-
-    Passenger(string n) {
-        name = n;
-    }
-};
-
-class Journey {
-public:
-    int zone;
-    bool peak;
-
-    Journey(int z, bool p) {
-        zone = z;
-        peak = p;
+    void display() const {
+        cout << "Title: " << title
+             << "\nCopies: " << copies
+             << "\nAuthor: " << author << "\n\n";
     }
 };
 
 int main() {
-    Passenger p("Arun");
-    SmartCard card(10000);
-    Journey j(2, false);
+    try {
+        Book b1;
+        Book b2("C++ Programming");
+        Book b3("Python", 5, "James");
 
-    int fare = j.zone * 1000;
+        b1.display();
+        b2.display();
+        b3.display();
 
-    if (j.peak)
-        fare += fare * 20 / 100;
-
-    cout << "Passenger: " << p.name << endl;
-
-    card.deduct(fare);
-
-    cout << "Balance: Rs " << card.getBalance() / 100.0 << endl;
+        // Book b4("Java", -2, "John"); // Invalid copies
+    }
+    catch (const exception& e) {
+        cout << e.what() << '\n';
+    }
 
     return 0;
 }

@@ -1,29 +1,100 @@
 #include <iostream>
-#include <climits>
 using namespace std;
 
+class Auditorium {
+private:
+    int rows;
+    int seats;
+    char** seatMap;
+    int booked;
+
+public:
+    Auditorium(int r, int s)
+        : rows(r), seats(s), seatMap(nullptr), booked(0) {
+
+        if (rows > 0 && seats > 0) {
+            seatMap = new char*[rows];
+
+            for (int i = 0; i < rows; i++) {
+                seatMap[i] = new char[seats];
+
+                for (int j = 0; j < seats; j++)
+                    seatMap[i][j] = 'O';
+            }
+        }
+
+        cout << "Auditorium created\n";
+    }
+
+    void bookSeat(int r, int s) {
+        if (!seatMap || r < 0 || r >= rows ||
+            s < 0 || s >= seats) {
+            cout << "Invalid seat\n";
+            return;
+        }
+
+        if (seatMap[r][s] == 'O') {
+            seatMap[r][s] = 'X';
+            booked++;
+            cout << "Seat booked\n";
+        } else {
+            cout << "Seat already booked\n";
+        }
+    }
+
+    void cancelSeat(int r, int s) {
+        if (!seatMap || r < 0 || r >= rows ||
+            s < 0 || s >= seats) {
+            cout << "Invalid seat\n";
+            return;
+        }
+
+        if (seatMap[r][s] == 'X') {
+            seatMap[r][s] = 'O';
+            booked--;
+            cout << "Booking cancelled\n";
+        }
+    }
+
+    void display() const {
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < seats; j++)
+                cout << seatMap[i][j] << " ";
+
+            cout << '\n';
+        }
+    }
+
+    ~Auditorium() {
+        if (seatMap != nullptr) {
+            for (int i = 0; i < rows; i++)
+                delete[] seatMap[i];
+
+            delete[] seatMap;
+        }
+
+        cout << "Auditorium closed. Booked seats: "
+             << booked << '\n';
+    }
+};
+
 int main() {
-    bool peak = true;
-    char zone = 'O';
-    int fare = 3000;
-    long long balance = 1000000;
-    float value = 25.5f;
-    double rupees = 30.50;
-    unsigned int hour = 9;
-    long long journeys = 3000000;
+    Auditorium a1(3, 4);
 
-    cout << "Size of bool: " << sizeof(peak) << endl;
-    cout << "Size of char: " << sizeof(zone) << endl;
-    cout << "Size of int: " << sizeof(fare) << endl;
-    cout << "Size of long long: " << sizeof(balance) << endl;
-    cout << "Size of float: " << sizeof(value) << endl;
-    cout << "Size of double: " << sizeof(rupees) << endl;
-    cout << "Size of unsigned int: " << sizeof(hour) << endl;
+    a1.bookSeat(0, 1);
+    a1.bookSeat(1, 2);
+    a1.display();
 
-    cout << "INT MAX: " << INT_MAX << endl;
+    a1.cancelSeat(0, 1);
 
-    cout << "Total Fare: "
-         << journeys * fare << " paise" << endl;
+    Auditorium* a2 = new Auditorium(2, 3);
+    a2->bookSeat(0, 0);
+    delete a2;
+
+    {
+        Auditorium a3(2, 2);
+        a3.bookSeat(1, 1);
+    }
 
     return 0;
 }

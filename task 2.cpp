@@ -1,39 +1,77 @@
 #include <iostream>
+#include <string>
 using namespace std;
 
-enum class Zone { Inner, Middle, Outer };
+class Prescription {
+private:
+    int n;
+    string* medicines;
 
-constexpr int INNER_FARE = 1000;
-constexpr int MIDDLE_FARE = 2000;
-constexpr int OUTER_FARE = 3000;
+public:
+    explicit Prescription(int count)
+        : n(count), medicines(new string[count]) {}
 
-constexpr int PEAK_SURCHARGE = 20;
-constexpr int MIN_BALANCE = 5000;
+    // Deep copy constructor
+    Prescription(const Prescription& other)
+        : n(other.n), medicines(new string[other.n]) {
+        for (int i = 0; i < n; i++)
+            medicines[i] = other.medicines[i];
 
-int main() {
-    Zone zone = Zone::Outer;
-    int fare = 0;
-
-    switch (zone) {
-        case Zone::Inner:
-            fare = INNER_FARE;
-            break;
-
-        case Zone::Middle:
-            fare = MIDDLE_FARE;
-            break;
-
-        case Zone::Outer:
-            fare = OUTER_FARE;
-            break;
+        cout << "Copy constructor called\n";
     }
 
-    cout << "Base Fare: " << fare << " paise" << endl;
+    // Copy assignment operator
+    Prescription& operator=(const Prescription& other) {
+        if (this != &other) {
+            string* newMedicines = new string[other.n];
 
-    int peakFare = fare + (fare * PEAK_SURCHARGE / 100);
+            for (int i = 0; i < other.n; i++)
+                newMedicines[i] = other.medicines[i];
 
-    cout << "Peak Fare: " << peakFare << " paise" << endl;
-    cout << "Minimum Balance: " << MIN_BALANCE << " paise" << endl;
+            delete[] medicines;
+
+            medicines = newMedicines;
+            n = other.n;
+        }
+
+        return *this;
+    }
+
+    // Destructor
+    ~Prescription() {
+        delete[] medicines;
+    }
+
+    void set(int i, const string& m) {
+        if (i >= 0 && i < n)
+            medicines[i] = m;
+    }
+
+    string get(int i) const {
+        if (i >= 0 && i < n)
+            return medicines[i];
+        return "";
+    }
+};
+
+int main() {
+    Prescription p(2);
+
+    p.set(0, "Paracetamol");
+    p.set(1, "ORS");
+
+    Prescription q = p;
+
+    q.set(1, "Cetirizine");
+
+    Prescription r(1);
+    r = p;
+
+    p.set(0, "Ibuprofen");
+
+    cout << p.get(0) << " " << p.get(1) << " | ";
+    cout << q.get(0) << " " << q.get(1) << " | ";
+    cout << r.get(0) << " " << r.get(1) << '\n';
 
     return 0;
 }

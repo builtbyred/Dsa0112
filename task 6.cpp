@@ -1,82 +1,97 @@
 #include <iostream>
-#include <iomanip>
+#include <cstring>
 using namespace std;
 
-enum class Zone {
-    Inner,
-    Middle,
-    Outer
-};
+class Text {
+private:
+    char* data;
 
-constexpr int BASE_PAISE[] = {1000, 2000, 3000};
-
-constexpr int PEAK_SURCHARGE_PERCENT = 20;
-
-constexpr long long MIN_BALANCE_PAISE = 5000;
-
-long long fare(Zone z, bool peak) {
-
-    int amount = 0;
-
-    switch (z) {
-        case Zone::Inner:
-            amount = BASE_PAISE[0];
-            break;
-
-        case Zone::Middle:
-            amount = BASE_PAISE[1];
-            break;
-
-        case Zone::Outer:
-            amount = BASE_PAISE[2];
-            break;
+public:
+    // Constructor
+    Text(const char* str = "") {
+        data = new char[strlen(str) + 1];
+        strcpy(data, str);
     }
 
-    if (peak) {
-        amount += amount * PEAK_SURCHARGE_PERCENT / 100;
+    // Copy constructor
+    Text(const Text& other) {
+        data = new char[strlen(other.data) + 1];
+        strcpy(data, other.data);
     }
 
-    return amount;
-}
+    // Copy assignment
+    Text& operator=(const Text& other) {
+        if (this != &other) {
+            char* temp = new char[strlen(other.data) + 1];
+            strcpy(temp, other.data);
 
-bool canTravel(long long balance, long long f) {
-    return balance - f >= MIN_BALANCE_PAISE;
-}
-
-int main() {
-
-    long long balance = 10000;
-
-    struct Trip {
-        Zone zone;
-        bool peak;
-    };
-
-    Trip trips[] = {
-        {Zone::Inner, false},
-        {Zone::Outer, true},
-        {Zone::Middle, false}
-    };
-
-    for (const Trip& t : trips) {
-
-        long long f = fare(t.zone, t.peak);
-
-        if (canTravel(balance, f)) {
-
-            balance -= f;
-
-            cout << "Fare Rs " << f / 100 << '.'
-                 << setw(2) << setfill('0') << f % 100
-                 << setfill(' ');
-
-        } else {
-
-            cout << "Denied (low balance)";
+            delete[] data;
+            data = temp;
         }
 
-        cout << " balance Rs " << balance / 100 << endl;
+        return *this;
     }
+
+    // Concatenation
+    Text operator+(const Text& other) const {
+        int len = strlen(data) + strlen(other.data);
+
+        char* temp = new char[len + 1];
+
+        strcpy(temp, data);
+        strcat(temp, other.data);
+
+        Text result(temp);
+        delete[] temp;
+
+        return result;
+    }
+
+    // Equality
+    bool operator==(const Text& other) const {
+        return strcmp(data, other.data) == 0;
+    }
+
+    // Not equal
+    bool operator!=(const Text& other) const {
+        return !(*this == other);
+    }
+
+    // Output
+    friend ostream& operator<<(ostream& out, const Text& t) {
+        out << t.data;
+        return out;
+    }
+
+    // Destructor
+    ~Text() {
+        delete[] data;
+    }
+};
+
+int main() {
+    Text a("Hello ");
+    Text b("World");
+    Text c("!");
+
+    Text result = a + b + c;
+
+    cout << "Message: " << result << '\n';
+
+    Text d("Hello World!");
+
+    cout << boolalpha;
+    cout << "Equal: " << (result == d) << '\n';
+    cout << "Not Equal: " << (result != d) << '\n';
+
+    // Self-assignment
+    result = result;
+
+    cout << "After self assignment: " << result << '\n';
+
+    Text empty("");
+
+    cout << "Empty message: " << empty << '\n';
 
     return 0;
 }
